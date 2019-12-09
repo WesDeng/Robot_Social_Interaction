@@ -26,6 +26,13 @@ sounds = ['wood.wav','robot.wav', 'coke.wav', 'leaves.wav', 'rose.wav']
 
 ambient = 'ambient.wav'
 
+# List of all the possible words.
+wood = ['wood']
+robot = ['robot', 'paper']
+coke = []
+leaves = []
+rose = []
+
 
 def get_string(image):
     response = clinet.label_detection(image = image)
@@ -39,6 +46,19 @@ def get_string(image):
         return label_text
     else:
         print('image_labeling(): No Label Descriptions')
+
+def face_distinction(image):
+    sound_file = "/home/pi/DET2019_Class5/hello2.wav"
+
+    response = client.face_detection(image=image)
+    face_content = response.face_annotations
+
+    if face_content and face_content[0].detection_confidence > 0.25:
+        print('face_distinction(): {}'.format(face_content[0].detection_confidence))
+        pg.mixer.music.load(sound_file)
+        pg.mixer.music.play()
+    else:
+        print('face_distinction(): No Face Detected at High Confidence!')
 
 def find_index(lst):
     m = max(lst)
@@ -97,36 +117,40 @@ def main():
 
             label_text = get_string(image)
 
-            # List of all the possible words.
-            wood = ['wood']
-            robot = []
-            coke = []
-            leaves = []
-            rose = []
+            # Face detection.
+            face_distinction()
 
-            # Compassion and Compromising.
+            # Compassion.
 
-            if re.search(wood[0], label_text, re.IGNORECASE):
+            # Wood: Curious
+            if re.search(wood[0], label_text, re.IGNORECASE) ||
+                re.search(wood[1], label_text, re.IGNORECASE) :
                 screen.blit(pic1, (0, 0))
                 pg.display.flip()
                 channel1.play(pg.mixer.Sound('wood.wav'), loops = 1)
 
-            if re.search(robot[0], label_text, re.IGNORECASE):
+            # Robot: Love
+            if re.search(robot[0], label_text, re.IGNORECASE) ||
+                re.search(robot[0], label_text, re.IGNORECASE):
                 screen.blit(pic2, (0, 0))
                 pg.display.flip()
                 channel1.play(pg.mixer.Sound('robot.wav'), loops = 1)
 
-            if re.search(coke[0], label_text, re.IGNORECASE):
+            # Can: Angry
+            if re.search(coke[0], label_text, re.IGNORECASE) ||
+                re.search(coke[1], label_text, re.IGNORECASE):
                 screen.blit(pic3, (0, 0))
                 pg.display.flip()
                 channel1.play(pg.mixer.Sound('coke.wav'), loops = 1)
 
-            if re.search(leaves[0], label_text, re.IGNORECASE):
+            # Leaves: Joy
+            if re.search(leaves[0], label_text, re.IGNORECASE) ||
+                re.search(leaves[1], label_text, re.IGNORECASE):
                 screen.blit(pic4, (0, 0))
                 pg.display.flip()
                 channel1.play(pg.mixer.Sound('leaves.wav'), loops = 1)
 
-            if re.search(rose[0], label_text, re.IGNORECASE):
-                screen.blit(pic5, (0, 0))
-                pg.display.flip()
-                channel1.play(pg.mixer.Sound('rose.wav'), loops = 1)
+            #if re.search(rose[0], label_text, re.IGNORECASE):
+                #screen.blit(pic5, (0, 0))
+                #pg.display.flip()
+                #channel1.play(pg.mixer.Sound('rose.wav'), loops = 1)
