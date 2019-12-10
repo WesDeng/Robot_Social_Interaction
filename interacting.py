@@ -11,32 +11,34 @@ import sys
 import re
 import random
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="det-cloud.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="DET_wesley.json"
 client = vision.ImageAnnotatorClient()
 
 image = 'iamge.jpg'
 
 from operator import add
 
-directory = ['wood', 'robot', 'coke', 'leaves', 'rose']
+#directory = ['wood', 'robot', 'coke', 'leaves', 'rose']
 
-direcotry_set = {'wood', 'robot', 'coke', 'leaves', 'rose'}
+#direcotry_set = {'wood', 'robot', 'coke', 'leaves', 'rose'}
 
-sounds = ['wood.wav','robot.wav', 'coke.wav', 'leaves.wav', 'rose.wav']
+#sounds = ['wood.wav','robot.wav', 'coke.wav', 'leaves.wav', 'rose.wav']
 
-ambient = 'ambient.wav'
+#ambient = 'ambient.wav'
 
 # List of all the possible words.
-wood = ['wood']
-robot = ['robot', 'paper']
-coke = []
-leaves = []
+wood = ['wood', 'hardwood']
+robot = ['robot', 'blue']
+coke = ['paper', 'stuff']
+leaves = ['maple', 'autumn', 'leaf']
 rose = []
 
 
 def get_string(image):
-    response = clinet.label_detection(image = image)
+    response = client.label_detection(image = image)
     labels = response.label_annotations
+    
+    label_text = ""
 
     for label in labels:
         label_text += ''.join([label.description, " "])
@@ -78,36 +80,39 @@ def color_chase(color, wait):
     time.sleep(0.5)
 
 def main():
+    
     camera = picamera.PiCamera()
     pg.init()
     pg.mixer.init()
-    pg.mixer.set_num_channels(2)
 
-    channel1 = pg.mixer.Channel(0)
-    channel2 = pg.mixer.Channel(1)
+    
+    #Set up screen
+    title = 'Husky face'
+    width = 900
+    height = 500
+    
+    screen = pg.display.set_mode((width, height))
+    pg.display.set_caption(title)
+    clock = pg.time.Clock()
+    
+    print('set up')
 
-    channel1.play(pg.mixer.Sound('ambient.wav'), loops = -1)
+    #channel1.play(pg.mixer.Sound('ambient.wav'), loops = -1)
 
     while True:
 
-        title = 'Anatomy of Brain'
-        width = 1800
-        height = 1000
-
         # Loading the face function.
         face0 = pg.image.load('face0.jpg')
-        face1 = pg.image.load('face1.jpg')
-        face2 = pg.image.load('face2.jpg')
-        face3 = pg.image.load('face3.jpg')
-        face4 = pg.image.load('face4.jpg')
-
-        screen = pg.display.set_mode((width, height))
-        pg.display.set_caption(title)
-        clock = pg.time.Clock()
+        face1 = pg.image.load('face1.png')
+        face2 = pg.image.load('face2.png')
+        face3 = pg.image.load('face3.png')
+        face4 = pg.image.load('face4.png')
 
         # Initial face.
         screen.blit(face0, (0, 0))
-
+        
+        
+        print('initial face')
 
         takephoto(camera)
 
@@ -115,42 +120,50 @@ def main():
             content = image_file.read()
             image = vision.types.Image(content=content)
 
-            label_text = get_string(image)
+            labels = get_string(image)
 
             # Face detection.
-            face_distinction()
+            #face_distinction()
 
             # Compassion.
 
             # Wood: Curious
-            if re.search(wood[0], label_text, re.IGNORECASE) ||
-                re.search(wood[1], label_text, re.IGNORECASE) :
-                screen.blit(pic1, (0, 0))
-                pg.display.flip()
-                channel1.play(pg.mixer.Sound('wood.wav'), loops = 1)
+            for word in wood:
+                if re.search(word, labels, re.IGNORECASE):
+                    print('wood')
+                    screen.blit(face1, (0, 0))
+                    pg.display.flip()
+                    pg.mixer.music.load('wood.mp3')
+                    pg.mixer.music.play()
 
             # Robot: Love
-            if re.search(robot[0], label_text, re.IGNORECASE) ||
-                re.search(robot[0], label_text, re.IGNORECASE):
-                screen.blit(pic2, (0, 0))
-                pg.display.flip()
-                channel1.play(pg.mixer.Sound('robot.wav'), loops = 1)
+            for word in robot:
+                if re.search(word, labels, re.IGNORECASE):
+                    print('robot')
+                    screen.blit(face2, (0, 0))
+                    pg.display.flip()
+                    pg.mixer.music.load('robot.mp3')
+                    pg.mixer.music.play()
 
             # Can: Angry
-            if re.search(coke[0], label_text, re.IGNORECASE) ||
-                re.search(coke[1], label_text, re.IGNORECASE):
-                screen.blit(pic3, (0, 0))
-                pg.display.flip()
-                channel1.play(pg.mixer.Sound('coke.wav'), loops = 1)
+            for word in coke:
+                if re.search(word, labels, re.IGNORECASE):
+                    print('coke')
+                    screen.blit(face3, (0, 0))
+                    pg.display.flip()
+                    pg.mixer.music.load('coke.mp3')
+                    pg.mixer.music.play()
+    
+            # Leaves
+            for word in leaves:
+                if re.search(word, labels, re.IGNORECASE):
+                    print('coke')
+                    screen.blit(face4, (0, 0))
+                    pg.display.flip()
+                    pg.mixer.music.load('leaves.mp3')
+                    pg.mixer.music.play()
 
-            # Leaves: Joy
-            if re.search(leaves[0], label_text, re.IGNORECASE) ||
-                re.search(leaves[1], label_text, re.IGNORECASE):
-                screen.blit(pic4, (0, 0))
-                pg.display.flip()
-                channel1.play(pg.mixer.Sound('leaves.wav'), loops = 1)
 
-            #if re.search(rose[0], label_text, re.IGNORECASE):
-                #screen.blit(pic5, (0, 0))
-                #pg.display.flip()
-                #channel1.play(pg.mixer.Sound('rose.wav'), loops = 1)
+                
+if __name__ == '__main__':
+        main()
