@@ -14,6 +14,20 @@ import random
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="DET_wesley.json"
 client = vision.ImageAnnotatorClient()
 
+from adafruit_seesaw.neopixel import NeoPixel
+
+num_pixels = 30
+neo = NeoPixel(crickit.seesaw, 20, num_pixels)
+
+RED = (255, 0, 0)
+YELLOW = (255, 150, 0)
+GREEN = (0, 255, 0)
+CYAN = (0, 255, 255)
+BLUE = (0, 0, 255)
+PURPLE = (180, 0, 255)
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+
 image = 'iamge.jpg'
 
 from operator import add
@@ -29,9 +43,8 @@ from operator import add
 # List of all the possible words.
 wood = ['wood', 'hardwood']
 robot = ['robot', 'blue']
-coke = ['paper', 'stuff']
-leaves = ['maple', 'autumn', 'leaf']
-rose = []
+coke = ['paper', 'stuff', 'coke']
+leaves = ['maple', 'autumn', 'leaf', 'orange']
 
 
 def get_string(image):
@@ -66,11 +79,18 @@ def find_index(lst):
     m = max(lst)
     return [i for i, j in enumerate(lst) if j == m]
 
+def color_chase(color, wait):
+    for i in range(num_pixels):
+        pixels[i] = color
+        time.sleep(wait)
+        pixels.show()
+    time.sleep(0.5)
+
 def takephoto(camera):
-    camera.start_preview()
-    sleep(.5)
+    #camera.start_preview()
+    sleep(1)
     camera.capture('image.jpg')
-    camera.stop_preview()
+    #camera.stop_preview()
 
 def color_chase(color, wait):
     for i in range(num_pixels):
@@ -88,12 +108,15 @@ def main():
     
     #Set up screen
     title = 'Husky face'
-    width = 900
-    height = 500
+    width = 1024
+    height = 614
     
-    screen = pg.display.set_mode((width, height))
+    screen = pg.display.set_mode((width, height),pg.NOFRAME)
     pg.display.set_caption(title)
     clock = pg.time.Clock()
+    
+    neo.fill(BLUE)
+    neo.show()
     
     print('set up')
 
@@ -102,14 +125,20 @@ def main():
     while True:
 
         # Loading the face function.
-        face0 = pg.image.load('face0.jpg')
+        face0 = pg.image.load('face0.png')
+        face0 = pg.transform.scale(face0, (1024, 614))
         face1 = pg.image.load('face1.png')
+        face1 = pg.transform.scale(face1, (1024, 614))
         face2 = pg.image.load('face2.png')
+        face2 = pg.transform.scale(face2, (1024, 614))
         face3 = pg.image.load('face3.png')
+        face3 = pg.transform.scale(face3, (1024, 614))
         face4 = pg.image.load('face4.png')
+        face4 = pg.transform.scale(face4, (1024, 614))
 
         # Initial face.
         screen.blit(face0, (0, 0))
+        pg.display.flip()
         
         
         print('initial face')
@@ -135,6 +164,8 @@ def main():
                     pg.display.flip()
                     pg.mixer.music.load('wood.mp3')
                     pg.mixer.music.play()
+                    neo.fill(WHITE)
+                    neo.show()
 
             # Robot: Love
             for word in robot:
@@ -144,6 +175,8 @@ def main():
                     pg.display.flip()
                     pg.mixer.music.load('robot.mp3')
                     pg.mixer.music.play()
+                    neo.fill(PURPLE)
+                    neo.show()
 
             # Can: Angry
             for word in coke:
@@ -153,6 +186,8 @@ def main():
                     pg.display.flip()
                     pg.mixer.music.load('coke.mp3')
                     pg.mixer.music.play()
+                    neo.fill(RED)
+                    neo.show()
     
             # Leaves
             for word in leaves:
@@ -162,6 +197,9 @@ def main():
                     pg.display.flip()
                     pg.mixer.music.load('leaves.mp3')
                     pg.mixer.music.play()
+                    neo.fill(YELLOW)
+                    neo.show()
+            sleep(1)
 
 
                 
